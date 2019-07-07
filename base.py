@@ -53,7 +53,6 @@ class Individual(list):
 	def __init__(self, content=[]):
 		list.__init__(self, content)
 		self.fitness = None
-		self.errors = None
 
 	def create(self, gene_num, input_num, output_num, nodeSet, leafSet, ERC_func=lambda:random.random()*2-1):
 		self.input_num = input_num
@@ -80,7 +79,7 @@ class Individual(list):
 		function_num = len(self)
 		self.function_num = function_num
 		for n in range(output_num):
-			inputs_arg = [random.randrange(len(self)) for x in range(max_arg_num)]
+			inputs_arg = [random.randrange(function_num) for x in range(max_arg_num)]
 			self.append(Gene("out", inputs_arg, 1, None))
 
 	def calc_path(self):
