@@ -69,16 +69,20 @@ def uniform_crossover(pop, CXPB):
 			indB.fitness = None
 	return indA, indB
 
-def tournament_selection(pop, tour_size):
+def tournament_selection(pop, tour_size, elite):
 	pop_size = len(pop)
 	pop = [ind for ind in pop if ind.fitness != None]
-	pop = [deepcopy(min(random.sample(pop, tour_size),key=lambda ind:ind.fitness)) for n in range(pop_size)]
+	pop = [deepcopy(min(random.sample(pop, tour_size),key=lambda ind:ind.fitness)) for n in range(pop_size-1)]
+	pop.append(elite)
 	return pop
 
 def evaluation(pop, evaluator, evaluator_args):
 	for ind in pop:
-		fitness = evaluator(pop, *evaluator_args)
-		ind.fitness = fitness
+		fitness = evaluator(ind, *evaluator_args)
+		if np.isfinite(fitness):
+			ind.fitness = fitness
+		else:
+			ind.fitness = None
 	return pop
 
 def makeInitialPopulation(ind_num, nodeSet, leafSet, gene_num, input_num, output_num):
