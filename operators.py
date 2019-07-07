@@ -85,11 +85,11 @@ def evaluation(pop, evaluator, evaluator_args):
 			ind.fitness = None
 	return pop
 
-def makeInitialPopulation(ind_num, nodeSet, leafSet, gene_num, input_num, output_num):
+def makeInitialPopulation(ind_num, nodeSet, leafSet, gene_num, output_num):
 	pop = []
 	for _ in range(num_ind):
 		ind = base.Individual()
-		ind.create(gene_num, input_num, output_num, nodeSet, leafSet)
+		ind.create(gene_num, output_num, nodeSet, leafSet)
 		pop.append(ind)
 	return pop
 

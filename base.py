@@ -54,8 +54,7 @@ class Individual(list):
 		list.__init__(self, content)
 		self.fitness = None
 
-	def create(self, gene_num, input_num, output_num, nodeSet, leafSet, ERC_func=lambda:random.random()*2-1):
-		self.input_num = input_num
+	def create(self, gene_num, output_num, nodeSet, leafSet, ERC_func=lambda:random.random()*2-1):
 		self.output_num = output_num
 		variable_leaf = [(name,leaf_info) for name,leaf_info in leafSet.items() if leaf_info["const"]!=None]
 		variable_leaf.sort(key=lambda obj:obj[1]["const"])

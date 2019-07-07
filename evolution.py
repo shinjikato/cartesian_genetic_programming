@@ -6,30 +6,28 @@ import operators as op
 from copy import deepcopy
 
 def evaluator(ind, X, y, nodeSet, leafSet):
-	_y = ind.run(self, X, nodeSet, leafSet)
+	_y = ind.run(X, nodeSet, leafSet)
 	return np.sum((y-_y)**2)/len(y)
 
-def GA_evolution(sklean_object):
+def GA_evolution(sklearn_object):
+	ind_num = sklearn_object.ind_num
+	nodeSet = sklearn_object.nodeSet
+	leafSet = sklearn_object.leafSet
+	gene_num = sklearn_object.gene_num
+	output_num = sklearn_object.output_num
+	generation_num = sklearn_object.generation_num
+	tour_size = sklearn_object.tour_size
 
-	ind_num = sklean_object.ind_num
-	nodeSet = sklean_object.nodeSet
-	leafSet = sklean_object.leafSet
-	gene_num = sklean_object.gene_num
-	input_num = sklean_object.input_num
-	output_num = sklean_object.input_num
-	generation_num = sklean_object.generation_num
-	tour_size = sklean_object.tour_size
+	CXPB = sklearn_object.CXPB
+	MUTPB = sklearn_object.MUTPB
+	CXMode = sklearn_object.CXMode
+	MUTMode = sklearn_object.MUTMode
 
-	CXPB = sklean_object.CXPB
-	MUTPB = sklean_object.MUTPB
-	CXMode = sklean_object.CXMode
-	MUTMode = sklean_object.MUTMode
-
-	X = sklean_object.train_X
-	y = sklean_object.train_y
+	X = sklearn_object.train_X
+	y = sklearn_object.train_y
 	evaluator_args = (X,y,nodeSet,leafSet)
 
-	pop = op.makeInitialPopulation(ind_num, nodeSet, leafSet, gene_num, input_num, output_num)
+	pop = op.makeInitialPopulation(ind_num, nodeSet, leafSet, gene_num, output_num)
 	elite = None
 
 	for g in range(generation_num):
@@ -44,9 +42,9 @@ def GA_evolution(sklean_object):
 			pop = op.one_point_crossover(pop, CXPB)
 		if CXMode == "Uniform":
 			pop = op.uniform_crossover(pop, CXPB)
-		if MUTMode == "point":
+		if MUTMode == "Point":
 			pop = op.point_mutate(pop, MUTPB, nodeSet, leafSet)
-		if MUTMode == "usePoint":
+		if MUTMode == "UsePoint":
 			pop = op.use_point_mutate(pop, MUTPB, nodeSet, leafSet)
 
 
@@ -56,23 +54,22 @@ def GA_evolution(sklean_object):
 		elite = deepcopy(new_elite)
 	return elite
 
-def ES_evolution(sklean_object):
-	ind_num = sklean_object.ind_num
-	nodeSet = sklean_object.nodeSet
-	leafSet = sklean_object.leafSet
-	gene_num = sklean_object.gene_num
-	input_num = sklean_object.input_num
-	output_num = sklean_object.input_num
-	generation_num = sklean_object.generation_num
+def ES_evolution(sklearn_object):
+	ind_num = sklearn_object.ind_num
+	nodeSet = sklearn_object.nodeSet
+	leafSet = sklearn_object.leafSet
+	gene_num = sklearn_object.gene_num
+	output_num = sklearn_object.output_num
+	generation_num = sklearn_object.generation_num
 
-	MUTPB = sklean_object.MUTPB
-	MUTMode = sklean_object.MUTMode
+	MUTPB = sklearn_object.MUTPB
+	MUTMode = sklearn_object.MUTMode
 
-	X = sklean_object.train_X
-	Y = sklean_object.train_Y
+	X = sklearn_object.train_X
+	Y = sklearn_object.train_Y
 	evaluator_args = (X,y,nodeSet,leafSet)
-	
-	pop = op.makeInitialPopulation(ind_num, nodeSet, leafSet, gene_num, input_num, output_num)
+
+	pop = op.makeInitialPopulation(ind_num, nodeSet, leafSet, gene_num, output_num)
 	elite = None
 
 	for g in range(generation_num):
@@ -81,9 +78,9 @@ def ES_evolution(sklean_object):
 		if elite == None or new_elite.fitness < elite.fitness:
 			elite = deepcopy(new_elite)
 		pop = [deepcopy(elite) for _ in range(ind_num)]
-		if MUTMode == "point":
+		if MUTMode == "Point":
 			pop = op.point_mutate(pop, MUTPB, nodeSet, leafSet)
-		if MUTMode == "usePoint":
+		if MUTMode == "UsePoint":
 			pop = op.use_point_mutate(pop, MUTPB, nodeSet, leafSet)
 
 	new_elite = min([ind for ind in pop if ind.fitness!=None], key=lambda ind:ind.fitness)
