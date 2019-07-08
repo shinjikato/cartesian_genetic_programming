@@ -2,25 +2,52 @@ import numpy as np
 from copy import deepcopy
 import random
 
+def add(stack, args):
+	return stack[args[0]]+stack[args[1]]
+
+def sub(stack, args):
+	return stack[args[0]]-stack[args[1]]
+
+def mul(stack, args):
+	return stack[args[0]]-stack[args[1]]
+
+def div(stack, args):
+	return stack[args[0]]-stack[args[1]]
+
+def sin(stack, args):
+	return np.sin(stack[args[0]])
+
+def cos(stack, args):
+	return np.cos(stack[args[0]])
+
+def exp(stack, args):
+	return np.exp(stack[args[0]])
+
+def log(stack, args):
+	return np.log(stack[args[0]])
+
+def pass_func(stack, args):
+	return stack[args[0]]
+
 def CreateNodeSet(useNodes):
 	nodeSet = {}
 	if "add" in useNodes:
-		nodeSet["add"] = {"function":lambda stack,args :stack[args[0]]+stack[args[1]] , "arity":2, "const":None}
+		nodeSet["add"] = {"function":add, "arity":2, "const":None}
 	if "sub" in useNodes:
-		nodeSet["sub"] = {"function":lambda stack,args :stack[args[0]]-stack[args[1]], "arity":2, "const":None}
+		nodeSet["sub"] = {"function":sub, "arity":2, "const":None}
 	if "mul" in useNodes:
-		nodeSet["mul"] = {"function":lambda stack,args :stack[args[0]]*stack[args[1]], "arity":2, "const":None}
+		nodeSet["mul"] = {"function":mul, "arity":2, "const":None}
 	if "div" in useNodes:
-		nodeSet["div"] = {"function":lambda stack,args :stack[args[0]]/stack[args[1]], "arity":2, "const":None}
+		nodeSet["div"] = {"function":div, "arity":2, "const":None}
 	if "sin" in useNodes:
-		nodeSet["sin"] = {"function":lambda stack,args :np.sin(stack[args[0]]), "arity":1, "const":None}
+		nodeSet["sin"] = {"function":sin, "arity":1, "const":None}
 	if "cos" in useNodes:
-		nodeSet["sin"] = {"function":lambda stack,args :np.cos(stack[args[0]]), "arity":1, "const":None}
+		nodeSet["cos"] = {"function":cos, "arity":1, "const":None}
 	if "exp" in useNodes:
-		nodeSet["sin"] = {"function":lambda stack,args :np.exp(stack[args[0]]), "arity":1, "const":None}
+		nodeSet["exp"] = {"function":exp, "arity":1, "const":None}
 	if "log" in useNodes:
-		nodeSet["sin"] = {"function":lambda stack,args :np.log(stack[args[0]]), "arity":1, "const":None}
-	nodeSet["out"] =  {"function":lambda stack,args :stack[args[0]], "arity":1, "const":None}
+		nodeSet["log"] = {"function":log, "arity":1, "const":None}
+	nodeSet["out"] =  {"function":pass_func, "arity":1, "const":None}
 	return nodeSet
 
 def CreateLeafSet(variable_num, erc_num):
@@ -48,6 +75,11 @@ class Gene:
 				return "name : {:<3}, const : {}".format(self.func_name, self.const)
 			else:
 				return "name : {:<3}, const : {}".format(self.func_name, self.const)
+
+	def __deepcopy__(self, memo):
+		new = self.__class__(deepcopy(self.func_name), deepcopy(self.inputs_arg), self.arity, self.const)
+		return new
+
 
 class Individual(list):
 	def __init__(self, content=[]):
@@ -109,14 +141,22 @@ class Individual(list):
 				else:
 					ret = nodeSet[name]["function"](calc_rets, gene.inputs_arg)
 				calc_rets[n] = ret
+		for n in range(1,self.output_num+1):
+			ret = calc_rets[-1*n]
+			mask = np.isfinite(ret)
+			m = np.mean(ret[mask])
+			ret[mask==False] = m
+			calc_rets[-1*n] = ret
+
 		return calc_rets[-1*self.output_num:]
 
 
 	def __deepcopy__(self, memo):
 		new = self.__class__(self)
-		new.__dict__.update(deepcopy(self.__dict__, memo))
+		new[:] = [deepcopy(node) for node in self]
 		new.fitness = self.fitness
-		new.errors = self.errors
+		new.function_num = self.function_num
+		new.output_num = self.output_num
 		return new
 
 	def __str__(self, phenotype=False):
@@ -124,7 +164,6 @@ class Individual(list):
 		for n,node in enumerate(self):
 			s += "{:0>3} {} \n".format(n, node.__str__(phenotype))
 		return s
-
 
 if __name__ == "__main__":# test code
 	seed = 6

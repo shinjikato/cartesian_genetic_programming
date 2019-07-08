@@ -1,4 +1,4 @@
-import base
+import cgp_base
 import random
 from copy import deepcopy
 import numpy as np
@@ -24,7 +24,7 @@ def point_mutate(pop, MUTPB, nodeSet, leafSet):
 						node.inputs_arg[i] = random.randrange(n)
 	return pop
 
-def use_point_mutate(ind, MUTPB, nodeSet, leafSet):
+def use_point_mutate(pop, MUTPB, nodeSet, leafSet):
 	function_node = [(name,node_info) for name,node_info in nodeSet.items() if name!="out"]
 	max_arg_num = max([node_info["arity"] for node_info in nodeSet.values()])
 	for ind in pop:
@@ -42,7 +42,7 @@ def use_point_mutate(ind, MUTPB, nodeSet, leafSet):
 						node.func_name = name
 						node.arity = node_info["arity"]
 					if mode == "arg":
-						i = random.randrange(len(node.arity))
+						i = random.randrange(node.arity)
 						node.inputs_arg[i] = random.randrange(n)
 	return pop
 
@@ -51,7 +51,7 @@ def one_point_crossover(pop, CXPB):
 		if random.random() < CXPB:
 			indA = pop[i*2]
 			indB = pop[i*2+1]
-			point = random.randrange(1,len(indA)-1)
+			p = random.randrange(1,len(indA)-1)
 			indA[:p], indB[p:] = indB[:p], indA[p:]
 			indA.fitness = None
 			indB.fitness = None
@@ -73,7 +73,7 @@ def tournament_selection(pop, tour_size, elite):
 	pop_size = len(pop)
 	pop = [ind for ind in pop if ind.fitness != None]
 	pop = [deepcopy(min(random.sample(pop, tour_size),key=lambda ind:ind.fitness)) for n in range(pop_size-1)]
-	pop.append(elite)
+	pop.append(deepcopy(elite))
 	return pop
 
 def evaluation(pop, evaluator, evaluator_args):
@@ -87,8 +87,8 @@ def evaluation(pop, evaluator, evaluator_args):
 
 def makeInitialPopulation(ind_num, nodeSet, leafSet, gene_num, output_num):
 	pop = []
-	for _ in range(num_ind):
-		ind = base.Individual()
+	for _ in range(ind_num):
+		ind = cgp_base.Individual()
 		ind.create(gene_num, output_num, nodeSet, leafSet)
 		pop.append(ind)
 	return pop
