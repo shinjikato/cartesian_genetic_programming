@@ -12,7 +12,10 @@ random.seed(0)
 np.random.seed(0)
 test_rate = 0.3
 
+
+all_ret = []
 for name in regression_dataset_names:
+	problem_ret = [name]
 	print(name)
 	data = fetch_data(name)
 	data = data.sample(frac=1).reset_index(drop=True)
@@ -47,12 +50,16 @@ for name in regression_dataset_names:
 	grid_model.fit(train_inputs, train_target)
 	best_params = grid_model.best_params_
 	grid_params = grid_model.cv_results_
-	ave = 0
+	test_ave = 0
+	train_ave = 0
 	for n in range(5):
 		model = CGPRegressor(**best_params)
 		mode.fit(train_inputs,train_target)
-		ave += model.score(test_inputs,test_target)*-1
-	ave = ave/5
+		test_ave += model.score(test_inputs,test_target)*-1
+		train_ave += model.score(train_inputs,train_target)*-1
+	test_ave = test_ave/5
+	train_ave = train_ave/5
+	problem_ret += [train_ave,test_ave]
 	print("  GA best score",ave)
 
 	"""ES search """
@@ -70,10 +77,17 @@ for name in regression_dataset_names:
 	grid_model.fit(train_inputs, train_target)
 	best_params = grid_model.best_params_
 	grid_params = grid_model.cv_results_
-	ave = 0
+	test_ave = 0
+	train_ave = 0
 	for n in range(5):
 		model = CGPRegressor(**best_params)
 		mode.fit(train_inputs,train_target)
-		ave += model.score(test_inputs,test_target)*-1
-	ave = ave/5
+		test_ave += model.score(test_inputs,test_target)*-1
+		train_ave += model.score(train_inputs,train_target)*-1
+	test_ave = test_ave/5
+	train_ave = train_ave/5
+	problem_ret += [train_ave,test_ave]
 	print("  ES best score",ave)
+
+csv = pd.DataFrame(all_ret,columns=["problem_name","GA train","GA test","ES train","ES test"])
+csv.to_csv("experiment_result.csv")
