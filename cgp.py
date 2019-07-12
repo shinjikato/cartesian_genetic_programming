@@ -20,7 +20,10 @@ class CGPRegressor:
 		self.tour_size = tour_size
 
 		self.CXPB = CXPB
-		self.MUTPB = MUTPB
+		if ea_type == "GA":
+			self.MUTPB = 1.0 - CXPB
+		else:
+			self.MUTPB = MUTPB
 		self.CXMode = CXMode
 		self.MUTMode = MUTMode
 		self.ea_type = ea_type

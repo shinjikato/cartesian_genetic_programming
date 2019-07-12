@@ -20,7 +20,7 @@ def point_mutate(pop, MUTPB, nodeSet, leafSet):
 						node.func_name = name
 						node.arity = node_info["arity"]
 					if mode == "arg":
-						i = random.randrange(len(node.arity))
+						i = random.randrange(node.arity)
 						node.inputs_arg[i] = random.randrange(n)
 	return pop
 
@@ -67,7 +67,7 @@ def uniform_crossover(pop, CXPB):
 					indA[n], indB[n] = indB[n], indA[n]
 			indA.fitness = None
 			indB.fitness = None
-	return indA, indB
+	return pop
 
 def tournament_selection(pop, tour_size, elite):
 	pop_size = len(pop)
