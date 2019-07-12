@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
 import cgp
 import random
+from joblib import Parallel,delayed
 
 
 random.seed(0)
