@@ -23,10 +23,8 @@ python
 import and run
 ```
 import cgp
-X,y = data
+X,y = data #using any data
 model = cgp.CGP_regressor()
 model.fit(X, y)
 print(model.score(X, y))
 ```
-
-# Best Parameter?
