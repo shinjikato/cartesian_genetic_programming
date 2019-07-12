@@ -8,7 +8,7 @@ import cgp
 import random
 from joblib import Parallel,delayed
 
-
+cpu_num = -1
 random.seed(0)
 np.random.seed(0)
 test_rate = 0.3
@@ -51,13 +51,13 @@ for name in regression_dataset_names:
 		"MUTMode":["Point","UsePoint"],
 		"ea_type":["GA"]
 	}
-	grid_model = GridSearchCV(cgp.CGPRegressor(), parameters, cv=5, n_jobs=6, scoring=None, verbose=10)
+	grid_model = GridSearchCV(cgp.CGPRegressor(), parameters, cv=5, n_jobs=cpu_num, scoring=None, verbose=10)
 	grid_model.fit(train_inputs, train_target)
 	best_params = grid_model.best_params_
 	grid_params = grid_model.cv_results_
 	args = [(best_params,train_inputs,train_target,test_inputs,test_target) for _ in range(5)]
 
-	result = Parallel(n_jobs=6)([delayed(process)(*params) for params in args])
+	result = Parallel(n_jobs=cpu_num)([delayed(process)(*params) for params in args])
 	ga_test_ave = sum([test_score for test_score ,train_score in result])/5
 	ga_train_ave = sum([train_score for test_score ,train_score in result])/5
 
@@ -74,17 +74,17 @@ for name in regression_dataset_names:
 		"ea_type":["ES"],
 		"stop_eval":[100000]
 	}
-	grid_model = GridSearchCV(cgp.CGPRegressor(), parameters, cv=5, n_jobs=6, error_score=np.nan, scoring=None, verbose=10)
+	grid_model = GridSearchCV(cgp.CGPRegressor(), parameters, cv=5, n_jobs=cpu_num, error_score=np.nan, scoring=None, verbose=10)
 	grid_model.fit(train_inputs, train_target)
 	best_params = grid_model.best_params_
 	grid_params = grid_model.cv_results_
 
 	args = [(best_params,train_inputs,train_target,test_inputs,test_target) for _ in range(5)]
 
-	result = Parallel(n_jobs=6)([delayed(process)(*params) for params in args])
+	result = Parallel(n_jobs=cpu_num)([delayed(process)(*params) for params in args])
 	es_test_ave = sum([test_score for test_score ,train_score in result])/5
 	es_train_ave = sum([train_score for test_score ,train_score in result])/5
 
-	csv = pd.DataFrame([ga_train_ave, ga_test_ave, es_train_ave, es_test_ave],columns=["GA train","GA test","ES train","ES test"])
+	csv = pd.DataFrame([[ga_train_ave, ga_test_ave, es_train_ave, es_test_ave]],columns=["GA train","GA test","ES train","ES test"])
 	out_name = "experiment_out/" + name + ".csv"
 	csv.to_csv(out_name)
